@@ -211,16 +211,22 @@
     font-size: 14px;
   }
   th:last-child, td:last-child { border-right: none; }
+  thead tr {
+    background: linear-gradient(90deg, #8e24aa, #ab47bc, #ff7043, #ff5722);
+  }
   thead th { 
-    background: linear-gradient(45deg, #8e24aa, #ff5722); 
+    background: transparent;
     color: white; 
     font-weight: 600;
     position: sticky;
     top: 0;
     z-index: 10;
   }
+  tfoot tr {
+    background: linear-gradient(90deg, #d1c4e9, #e1bee7, #ffccbc, #ffe0b2);
+  }
   tfoot td { 
-    background: linear-gradient(45deg, #d1c4e9, #ffe0b2); 
+    background: transparent;
     font-weight: bold;
     font-size: 15px;
   }
