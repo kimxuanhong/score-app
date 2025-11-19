@@ -15,7 +15,7 @@
 
   body {
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #f3e5f5, #fff3e0);
+    background: linear-gradient(135deg, #8e24aa 0%, #ab47bc 25%, #ff7043 75%, #ff9800 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -94,15 +94,19 @@
     font-weight: 600;
     touch-action: manipulation;
   }
-  .btn.confirm { background: linear-gradient(45deg, #ff9800, #ff5722); }
+  .btn.confirm { 
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ff7043, #ff9800); 
+  }
   .btn.confirm:active { 
-    background: linear-gradient(45deg, #fb8c00, #f4511e); 
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0, #ff5722, #f57c00); 
     transform: scale(0.98);
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
-  .btn.new-game { background: linear-gradient(45deg, #8e24aa, #6a1b9a); }
+  .btn.new-game { 
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ff7043, #ff9800); 
+  }
   .btn.new-game:active { 
-    background: linear-gradient(45deg, #7b1fa2, #4a148c); 
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0, #ff5722, #f57c00); 
     transform: scale(0.98);
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
@@ -113,7 +117,7 @@
     padding: 20px;
     margin: 8px 0;
     border-radius: 20px;
-    background: radial-gradient(circle at top left, #f3e5f5, #ffccbc);
+    background: linear-gradient(135deg, #e1bee7 0%, #ce93d8 30%, #ffab91 70%, #ffccbc 100%);
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
     display: flex;
     flex-direction: column;
@@ -165,8 +169,18 @@
     transform: scale(0.92); 
     box-shadow: 0 2px 6px rgba(0,0,0,0.4); 
   }
-  .btn.plus { background: linear-gradient(45deg, #ab47bc, #8e24aa); }
-  .btn.minus { background: linear-gradient(45deg, #ff7043, #e64a19); }
+  .btn.plus { 
+    background: linear-gradient(135deg, #ab47bc, #8e24aa, #6a1b9a); 
+  }
+  .btn.plus:active {
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2, #4a148c);
+  }
+  .btn.minus { 
+    background: linear-gradient(135deg, #ff7043, #ff5722, #e64a19); 
+  }
+  .btn.minus:active {
+    background: linear-gradient(135deg, #f4511e, #e64a19, #d84315);
+  }
   
   .score {
     font-size: 32px;
@@ -212,7 +226,7 @@
   }
   th:last-child, td:last-child { border-right: none; }
   thead tr {
-    background: linear-gradient(90deg, #8e24aa, #ab47bc, #ff7043, #ff5722);
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ce93d8, #ff7043, #ff9800);
   }
   thead th { 
     background: transparent;
@@ -223,17 +237,21 @@
     z-index: 10;
   }
   tfoot tr {
-    background: linear-gradient(90deg, #d1c4e9, #e1bee7, #ffccbc, #ffe0b2);
+    background: linear-gradient(135deg, #d1c4e9, #e1bee7, #f8bbd0, #ffccbc, #ffe0b2);
   }
   tfoot td { 
     background: transparent;
     font-weight: bold;
     font-size: 15px;
   }
-  tbody tr:nth-child(odd) { background: #f3e5f5; }
-  tbody tr:nth-child(even) { background: #ffecb3; }
+  tbody tr:nth-child(odd) { 
+    background: linear-gradient(90deg, #f3e5f5, #fce4ec); 
+  }
+  tbody tr:nth-child(even) { 
+    background: linear-gradient(90deg, #fff3e0, #ffecb3); 
+  }
   tbody tr:active { 
-    background: linear-gradient(90deg, #ce93d8, #ffab91); 
+    background: linear-gradient(135deg, #ce93d8, #ba68c8, #ffab91); 
     color: white; 
   }
 
@@ -410,23 +428,25 @@
   }
 
   .modal-btn.cancel {
-    background: #e0e0e0;
-    color: #666;
+    background: linear-gradient(135deg, #ce93d8, #ba68c8, #ffab91);
+    color: white;
+    box-shadow: 0 3px 10px rgba(142, 36, 170, 0.2);
   }
 
   .modal-btn.cancel:active {
-    background: #d0d0d0;
+    background: linear-gradient(135deg, #ba68c8, #ab47bc, #ff8a65);
     transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(142, 36, 170, 0.3);
   }
 
   .modal-btn.confirm {
-    background: linear-gradient(45deg, #8e24aa, #6a1b9a);
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ff7043, #ff9800);
     color: white;
     box-shadow: 0 3px 10px rgba(142, 36, 170, 0.3);
   }
 
   .modal-btn.confirm:active {
-    background: linear-gradient(45deg, #7b1fa2, #4a148c);
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0, #ff5722, #f57c00);
     transform: scale(0.98);
     box-shadow: 0 2px 6px rgba(142, 36, 170, 0.4);
   }
@@ -520,7 +540,7 @@
   </template>
 
   <!-- Custom Modal -->
-  <div class="modal-overlay" v-if="showModal" @click.self="closeModal">
+  <div class="modal-overlay" v-if="showModal">
     <div class="modal-content">
       <div class="modal-header">Nhập danh sách người chơi</div>
       <div class="modal-body">
