@@ -608,7 +608,7 @@ createApp({
     },
     confirmAll() {
       const timestamp = new Date().toLocaleString();
-      const scoresSnapshot = this.players.map(p => ({ name: p.name, score: p.score - p.originalScore}));
+      const scoresSnapshot = this.players.map(p => ({ name: p.name, score: p.originalScore - p.score}));
       this.saveHistory({scores: scoresSnapshot, time: timestamp});
       this.players.forEach(p => p.originalScore = p.score);
       this.loadHistory();
