@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghi điểm - History Table</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #f3e5f5, #fff3e0);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    overflow-x: hidden;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    padding: 5px;
+  }
+  
+  .history-btn {
+    font-size: 28px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #8e24aa;
+    transition: color 0.2s, transform 0.2s;
+    padding: 10px;
+    min-width: 48px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .history-btn:active { 
+    color: #6a1b9a; 
+    transform: scale(0.95);
+  }
+
+  .controls-top {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .controls-bottom {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .btn.confirm, .btn.new-game {
+    width: 100%;
+    max-width: 280px;
+    min-height: 56px;
+    font-size: 17px;
+    border-radius: 14px;
+    cursor: pointer;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    touch-action: manipulation;
+  }
+  .btn.confirm { background: linear-gradient(45deg, #ff9800, #ff5722); }
+  .btn.confirm:active { 
+    background: linear-gradient(45deg, #fb8c00, #f4511e); 
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .btn.new-game { background: linear-gradient(45deg, #8e24aa, #6a1b9a); }
+  .btn.new-game:active { 
+    background: linear-gradient(45deg, #7b1fa2, #4a148c); 
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .score-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    margin: 8px 0;
+    border-radius: 20px;
+    background: radial-gradient(circle at top left, #f3e5f5, #ffccbc);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, background 0.3s, box-shadow 0.2s;
+  }
+  .score-card:active {
+    transform: scale(0.99);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  .player-name {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #8e24aa;
+    text-align: center;
+    word-break: break-word;
+  }
+  
+  .score-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .btn {
+    font-size: 28px;
+    min-width: 60px;
+    min-height: 60px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .btn:active { 
+    transform: scale(0.92); 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4); 
+  }
+  .btn.plus { background: linear-gradient(45deg, #ab47bc, #8e24aa); }
+  .btn.minus { background: linear-gradient(45deg, #ff7043, #e64a19); }
+  
+  .score {
+    font-size: 32px;
+    font-weight: 700;
+    min-width: 60px;
+    text-align: center;
+    transition: color 0.3s, transform 0.2s;
+    color: #333;
+  }
+  .score.changed.negative { color: #d32f2f; }
+  .score.changed.positive { color: #388e3c; }
+  .score.animate { animation: jump 0.2s ease-in-out; }
+  @keyframes jump { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+  h2 {
+    color: #8e24aa;
+    font-size: 26px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 15px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  table {
+    width: 100%;
+    min-width: 300px;
+    border-collapse: collapse;
+    text-align: center;
+    background: white;
+  }
+  
+  th, td { 
+    padding: 12px 8px; 
+    border-right: 1px solid #8e24aa;
+    font-size: 14px;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  thead th { 
+    background: linear-gradient(45deg, #8e24aa, #ff5722); 
+    color: white; 
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  tfoot td { 
+    background: linear-gradient(45deg, #d1c4e9, #ffe0b2); 
+    font-weight: bold;
+    font-size: 15px;
+  }
+  tbody tr:nth-child(odd) { background: #f3e5f5; }
+  tbody tr:nth-child(even) { background: #ffecb3; }
+  tbody tr:active { 
+    background: linear-gradient(90deg, #ce93d8, #ffab91); 
+    color: white; 
+  }
+
+  /* Tablet breakpoint */
+  @media (max-width: 600px) {
+    body { padding: 8px; }
+    .score-card { padding: 18px; margin: 6px 0; }
+    .player-name { font-size: 20px; margin-bottom: 18px; }
+    .score { font-size: 28px; min-width: 50px; }
+    .btn { 
+      min-width: 56px; 
+      min-height: 56px; 
+      width: 56px; 
+      height: 56px; 
+      font-size: 26px; 
+    }
+    .btn.confirm, .btn.new-game { 
+      font-size: 16px; 
+      min-height: 52px; 
+    }
+    h2 { font-size: 24px; }
+    th, td { padding: 10px 6px; font-size: 13px; }
+  }
+
+  /* Mobile breakpoint */
+  @media (max-width: 480px) {
+    body { padding: 5px; }
+    .top-bar { margin-bottom: 15px; }
+    .history-btn { font-size: 26px; padding: 8px; }
+    .controls-top, .controls-bottom { gap: 12px; margin-bottom: 15px; margin-top: 15px; }
+    .score-card { 
+      padding: 16px; 
+      margin: 5px 0; 
+      border-radius: 16px;
+    }
+    .player-name { font-size: 19px; margin-bottom: 16px; }
+    .score-controls { gap: 15px; }
+    .score { font-size: 26px; min-width: 50px; }
+    .btn { 
+      min-width: 54px; 
+      min-height: 54px; 
+      width: 54px; 
+      height: 54px; 
+      font-size: 24px; 
+    }
+    .btn.confirm, .btn.new-game { 
+      font-size: 15px; 
+      min-height: 50px;
+      max-width: 100%;
+    }
+    h2 { font-size: 22px; margin-bottom: 15px; }
+    th, td { padding: 10px 6px; font-size: 12px; }
+    tfoot td { font-size: 13px; }
+  }
+
+  /* Small mobile breakpoint */
+  @media (max-width: 360px) {
+    .score-card { padding: 14px; }
+    .player-name { font-size: 18px; }
+    .score-controls { gap: 12px; }
+    .score { font-size: 24px; min-width: 45px; }
+    .btn { 
+      min-width: 50px; 
+      min-height: 50px; 
+      width: 50px; 
+      height: 50px; 
+      font-size: 22px; 
+    }
+    .btn.confirm, .btn.new-game { 
+      font-size: 14px; 
+      min-height: 48px; 
+    }
+    h2 { font-size: 20px; }
+    th, td { padding: 8px 4px; font-size: 11px; }
+    tfoot td { font-size: 12px; }
+    .history-btn { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="top-bar">
+    <button class="history-btn" @click="showHistory = true" title="History">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+    </button>
+  </div>
+
+  <template v-if="!showHistory">
+    <div class="controls-top">
+      <button class="btn new-game" @click="newGameAndInput()">Tạo ván mới / Nhập người chơi</button>
+    </div>
+
+    <div class="score-card" 
+         v-for="(player, index) in players" 
+         :key="index">
+      <div class="player-name">{{ player.name }}</div>
+      <div class="score-controls">
+        <button class="btn minus" @click="changeScore(index, -1)">-</button>
+        <div class="score"
+             :class="[
+               { changed: player.score !== player.originalScore,
+                 negative: player.score < 0,
+                 positive: player.score >= 0,
+                 animate: player.animate
+               }
+             ]">{{ player.score }}</div>
+        <button class="btn plus" @click="changeScore(index, 1)">+</button>
+      </div>
+    </div>
+
+    <div class="controls-bottom">
+      <button class="btn confirm" v-if="hasPendingChanges" @click="confirmAll()">Xác nhận tất cả</button>
+    </div>
+  </template>
+
+  <template v-else>
+    <h2>Lịch sử điểm</h2>
+    <div style="width: 100%; padding: 0 10px; margin-bottom: 15px;">
+      <button class="btn new-game" @click="showHistory = false">← Quay lại</button>
+    </div>
+    <div class="table-container" v-if="history.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th v-for="player in players" :key="player.name">{{ player.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(entry,index) in history" :key="index">
+            <td>{{ index + 1 }}</td>
+            <td v-for="score in entry.scores" :key="score.name">{{ score.score }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Tổng</td>
+            <td v-for="(player,index) in players" :key="player.name">
+              {{ totalScore(index) }}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div v-else style="padding: 20px; text-align: center; color: #8e24aa; font-size: 16px;">Không có lịch sử</div>
+  </template>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const { createApp, nextTick } = Vue;
+
+createApp({
+  data() {
+    return {
+      players: [
+        { name: 'Player 1', score: 0, originalScore: 0, animate: false },
+        { name: 'Player 2', score: 0, originalScore: 0, animate: false },
+        { name: 'Player 3', score: 0, originalScore: 0, animate: false },
+        { name: 'Player 4', score: 0, originalScore: 0, animate: false },
+      ],
+      showHistory: false,
+      history: [],
+      db: null
+    }
+  },
+  computed: {
+    hasPendingChanges() {
+      return this.players.some(p => p.score !== p.originalScore);
+    }
+  },
+  methods: {
+    changeScore(index, delta) {
+      this.players[index].score += delta;
+      this.players[index].animate = true;
+      nextTick(() => {
+        setTimeout(() => this.players[index].animate = false, 200);
+      });
+    },
+    confirmAll() {
+      const timestamp = new Date().toLocaleString();
+      const scoresSnapshot = this.players.map(p => ({ name: p.name, score: p.score }));
+      this.saveHistory({scores: scoresSnapshot, time: timestamp});
+      this.players.forEach(p => p.originalScore = p.score);
+      this.loadHistory();
+    },
+    newGameAndInput() {
+      const namesInput = prompt("Nhập danh sách người chơi mới, phân cách bằng dấu phẩy (,):");
+      if (!namesInput) return;
+      const names = namesInput.split(',').map(n => n.trim()).filter(n => n);
+      if (names.length === 0) return;
+
+      // Reset players
+      this.players = names.map(name => ({ name, score: 0, originalScore: 0, animate: false }));
+
+      // Clear history
+      this.history = [];
+      if(this.db){
+        const tx = this.db.transaction("history", "readwrite");
+        const store = tx.objectStore("history");
+        store.clear();
+      }
+    },
+    initDB() {
+      const request = indexedDB.open("GameScoreDB", 1);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains("history")){
+          db.createObjectStore("history", { keyPath: "id", autoIncrement:true });
+        }
+      };
+      request.onsuccess = (e) => {
+        this.db = e.target.result;
+        this.loadHistory();
+      };
+      request.onerror = (e) => console.error("DB error", e);
+    },
+    saveHistory(item) {
+      const tx = this.db.transaction("history", "readwrite");
+      const store = tx.objectStore("history");
+      store.add(item);
+    },
+    loadHistory() {
+      const tx = this.db.transaction("history", "readonly");
+      const store = tx.objectStore("history");
+      const all = store.getAll();
+      all.onsuccess = () => {
+        this.history = all.result.reverse();
+      };
+    },
+    totalScore(playerIndex) {
+      return this.history.reduce((sum, entry) => {
+        if(entry.scores && entry.scores[playerIndex] !== undefined){
+          return sum + entry.scores[playerIndex].score;
+        }
+        return sum;
+      }, 0);
+    }
+  },
+  mounted() {
+    this.initDB();
+  }
+}).mount('#app');
+</script>
+
+</body>
+</html>
