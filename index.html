@@ -688,7 +688,7 @@ createApp({
     }
   },
   mounted() {
-    //this.initDB();
+    this.initDB();
     // Auto prompt for player names on first load
     setTimeout(() => {
       const isDefaultPlayers = this.players.every(p => p.name.startsWith('Player '));
