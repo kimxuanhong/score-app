@@ -137,9 +137,9 @@
   .score-controls {
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
     width: 100%;
-    gap: 20px;
+    padding: 0 10px;
     margin-bottom: 8px;
   }
   
@@ -264,7 +264,7 @@
       border-radius: 16px;
     }
     .player-name { font-size: 19px; margin-bottom: 16px; }
-    .score-controls { gap: 15px; }
+    .score-controls { padding: 0 5px; }
     .score { font-size: 26px; min-width: 50px; }
     .btn { 
       min-width: 54px; 
@@ -287,7 +287,7 @@
   @media (max-width: 360px) {
     .score-card { padding: 14px; }
     .player-name { font-size: 18px; }
-    .score-controls { gap: 12px; }
+    .score-controls { padding: 0; }
     .score { font-size: 24px; min-width: 45px; }
     .btn { 
       min-width: 50px; 
