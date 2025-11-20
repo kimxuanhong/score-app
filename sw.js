@@ -1,6 +1,5 @@
-const CACHE_NAME = 'score-app-v1';
+const CACHE_NAME = 'score-app-v2';
 const urlsToCache = [
-  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -20,33 +19,50 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - Network first for HTML, cache first for assets
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Network first for HTML files to always get fresh content
+  if (event.request.destination === 'document' || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Cache the fresh HTML
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+          return response;
+        })
+        .catch(() => {
+          // If network fails, try cache
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Cache first for assets (CSS, JS, images, fonts)
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Cache hit - return response
         if (response) {
           return response;
         }
-        return fetch(event.request).then(
-          (response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
+        return fetch(event.request).then((response) => {
+          // Only cache successful responses
+          if (!response || response.status !== 200) {
             return response;
           }
-        );
+
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+          return response;
+        });
       })
   );
 });
