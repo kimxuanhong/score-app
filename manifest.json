@@ -3,10 +3,15 @@
   "short_name": "Score App",
   "description": "Ứng dụng ghi điểm cho trò chơi",
   "start_url": "./index.html",
+  "display_override": ["window-controls-overlay", "standalone"],
   "display": "standalone",
   "background_color": "#f5f5f5",
-  "theme_color": "#f5f5f5",
+  "theme_color": "#8e24aa",
   "orientation": "portrait",
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
   "icons": [
     {
       "src": "icon-192.png",
