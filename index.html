@@ -605,6 +605,7 @@ createApp({
       nextTick(() => {
         setTimeout(() => this.players[index].animate = false, 200);
       });
+      this.saveCurrentState();
     },
     confirmAll() {
       const timestamp = new Date().toLocaleString();
@@ -612,6 +613,7 @@ createApp({
       this.saveHistory({scores: scoresSnapshot, time: timestamp});
       this.players.forEach(p => p.originalScore = p.score);
       this.loadHistory();
+      this.saveCurrentState();
     },
     newGameAndInput() {
       this.playerInput = '';
@@ -649,18 +651,23 @@ createApp({
         store.clear();
       }
 
+      this.saveCurrentState();
       this.closeModal();
     },
     initDB() {
-      const request = indexedDB.open("GameScoreDB", 1);
+      const request = indexedDB.open("GameScoreDB", 2);
       request.onupgradeneeded = (e) => {
         const db = e.target.result;
         if(!db.objectStoreNames.contains("history")){
           db.createObjectStore("history", { keyPath: "id", autoIncrement:true });
         }
+        if(!db.objectStoreNames.contains("currentState")){
+          db.createObjectStore("currentState", { keyPath: "id" });
+        }
       };
       request.onsuccess = (e) => {
         this.db = e.target.result;
+        this.loadCurrentState();
         this.loadHistory();
       };
       request.onerror = (e) => console.error("DB error", e);
@@ -678,6 +685,33 @@ createApp({
         this.history = all.result.reverse();
       };
     },
+    saveCurrentState() {
+      if (!this.db) return;
+      const tx = this.db.transaction("currentState", "readwrite");
+      const store = tx.objectStore("currentState");
+      store.put({ 
+        id: 'players', 
+        players: this.players.map(p => ({ 
+          name: p.name, 
+          score: p.score, 
+          originalScore: p.originalScore 
+        })) 
+      });
+    },
+    loadCurrentState() {
+      if (!this.db) return;
+      const tx = this.db.transaction("currentState", "readonly");
+      const store = tx.objectStore("currentState");
+      const request = store.get('players');
+      request.onsuccess = () => {
+        if (request.result && request.result.players && request.result.players.length > 0) {
+          this.players = request.result.players.map(p => ({ 
+            ...p, 
+            animate: false 
+          }));
+        }
+      };
+    },
     totalScore(playerIndex) {
       return this.history.reduce((sum, entry) => {
         if(entry.scores && entry.scores[playerIndex] !== undefined){
@@ -689,13 +723,13 @@ createApp({
   },
   mounted() {
     this.initDB();
-    // Auto prompt for player names on first load
+    // Auto prompt for player names on first load only if no saved state
     setTimeout(() => {
       const isDefaultPlayers = this.players.every(p => p.name.startsWith('Player '));
       if (isDefaultPlayers) {
         this.newGameAndInput();
       }
-    }, 300);
+    }, 500);
   }
 }).mount('#app');
 </script>
