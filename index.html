@@ -1,203 +1,774 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ghi điểm đẹp vl</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta name="description" content="Ứng dụng ghi điểm cho trò chơi - Score Tracking App">
+<meta name="theme-color" content="#f5f5f5">
+<meta name="theme-color" content="#4CAF50">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Score App">
+<title>Ghi điểm - History Table</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <style>
-  :root {
-    --hawk: linear-gradient(135deg, #4facfe, #00f2fe);
-    --horse: linear-gradient(135deg, #fa71cd, #c471f5);
-    --hedgehog: linear-gradient(135deg, #ff9a9e, #fad0c4);
-    --shark: linear-gradient(135deg, #ff6a6a, #ee5a5a);
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    -webkit-tap-highlight-color: transparent;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
+
   body {
-    background: #000;
-    color: white;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f5f5;
     min-height: 100vh;
-    padding: env(safe-area-inset-top, 44px) 15px env(safe-area-inset-bottom, 20px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    padding-top: max(10px, env(safe-area-inset-top), env(titlebar-area-height, 0px));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    overflow-x: hidden;
   }
-  .player {
-    position: relative;
+
+  /* Window Controls Overlay support for Desktop PWA */
+  @media (display-mode: window-controls-overlay) {
+    body {
+      padding-top: calc(env(titlebar-area-height, 33px) + 10px);
+    }
+  }
+
+  #app {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    padding: 5px;
+  }
+
+  /* Make top bar draggable on Desktop PWA */
+  @media (display-mode: window-controls-overlay) {
+    .top-bar {
+      -webkit-app-region: drag;
+      app-region: drag;
+    }
+    .history-btn {
+      -webkit-app-region: no-drag;
+      app-region: no-drag;
+    }
+  }
+  
+  .history-btn {
+    font-size: 28px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #8e24aa;
+    transition: color 0.2s, transform 0.2s;
+    padding: 10px;
+    min-width: 48px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .history-btn:active { 
+    color: #6a1b9a; 
+    transform: scale(0.95);
+  }
+
+  .controls-top {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .controls-bottom {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .btn.confirm, .btn.new-game {
+    width: 100%;
+    max-width: 280px;
+    min-height: 56px;
+    font-size: 17px;
+    border-radius: 14px;
+    cursor: pointer;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+    touch-action: manipulation;
+  }
+  .btn.confirm { 
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ff7043, #ff9800); 
+  }
+  .btn.confirm:active { 
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0, #ff5722, #f57c00); 
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .btn.new-game { 
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ff7043, #ff9800); 
+  }
+  .btn.new-game:active { 
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0, #ff5722, #f57c00); 
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .score-card {
     width: 100%;
     max-width: 500px;
-    margin: 18px auto;
-    border-radius: 28px;
-    overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    padding: 20px;
+    margin: 8px 0;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(225, 190, 231, 0.2) 0%, rgba(206, 147, 216, 0.2) 30%, rgba(255, 171, 145, 0.2) 70%, rgba(255, 204, 188, 0.2) 100%);
+    background-color: white;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, background 0.3s, box-shadow 0.2s;
   }
-  .bg { padding: 24px 28px 32px; }
-  .hawk .bg    { background: var(--hawk); }
-  .horse .bg   { background: var(--horse); }
-  .hedgehog .bg{ background: var(--hedgehog); }
-  .shark .bg   { background: var(--shark); }
-
-  .menu-dots {
-    position: absolute;
-    top: 18px; right: 20px;
-    font-size: 32px;
-    opacity: 0.7;
-    cursor: pointer;
+  .score-card:active {
+    transform: scale(0.99);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   }
-  .name {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 8px;
+  
+  .player-name {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #8e24aa;
+    text-align: center;
+    word-break: break-word;
   }
-  .controls {
+  
+  .score-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
+    margin-bottom: 8px;
   }
-  button {
-    background: rgba(255,255,255,0.25);
-    border: none;
-    color: white;
-    width: 72px; height: 72px;
+  
+  .btn {
+    font-size: 28px;
+    min-width: 60px;
+    min-height: 60px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    font-size: 48px;
-    font-weight: bold;
+    border: none;
     cursor: pointer;
-    backdrop-filter: blur(10px);
-    transition: all 0.15s;
-  }
-  button:active { transform: scale(0.88); background: rgba(255,255,255,0.4); }
-  .score {
-    font-size: 82px;
-    font-weight: 900;
-    min-width: 160px;
-    text-align: center;
-    transition: transform 0.2s;
-  }
-  .score.jump { animation: jump 0.35s ease-out; }
-  @keyframes jump { 0%,100%{transform:scale(1)} 50%{transform:scale(1.35)} }
-
-  .fab {
-    position: fixed;
-    bottom: 30px; right: 30px;
-    width: 66px; height: 66px;
-    background: linear-gradient(135deg, #8e24aa, #ff7043);
-    border-radius: 50%;
-    font-size: 36px;
     color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .btn:active { 
+    transform: scale(0.92); 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4); 
+  }
+  .btn.plus { 
+    background: linear-gradient(135deg, #ab47bc, #8e24aa, #6a1b9a); 
+  }
+  .btn.plus:active {
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2, #4a148c);
+  }
+  .btn.minus { 
+    background: linear-gradient(135deg, #ff7043, #ff5722, #e64a19); 
+  }
+  .btn.minus:active {
+    background: linear-gradient(135deg, #f4511e, #e64a19, #d84315);
+  }
+  
+  .score {
+    font-size: 32px;
+    font-weight: 700;
+    min-width: 60px;
+    text-align: center;
+    transition: color 0.3s, transform 0.2s;
+    color: #333;
+  }
+  .score.changed.negative { color: #d32f2f; }
+  .score.changed.positive { color: #388e3c; }
+  .score.animate { animation: jump 0.2s ease-in-out; }
+  @keyframes jump { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+  h2 {
+    color: #8e24aa;
+    font-size: 26px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 15px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  table {
+    width: 100%;
+    min-width: 300px;
+    border-collapse: collapse;
+    text-align: center;
+    background: white;
+  }
+  
+  th, td { 
+    padding: 12px 8px; 
+    border-right: 1px solid #8e24aa;
+    font-size: 14px;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  thead tr {
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ce93d8, #ff7043, #ff9800);
+  }
+  thead th { 
+    background: transparent;
+    color: white; 
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  tfoot tr {
+    background: linear-gradient(135deg, #ce93d8, #e1bee7, #ffab91, #ffcc80, #ffe0b2);
+  }
+  tfoot td { 
+    background: transparent;
+    font-weight: bold;
+    font-size: 15px;
+  }
+  tbody tr:nth-child(odd) { 
+    background: linear-gradient(90deg, #e1bee7, #f3e5f5, #ffccbc); 
+  }
+  tbody tr:nth-child(even) { 
+    background: linear-gradient(90deg, #ce93d8, #e1bee7, #ffab91); 
+  }
+  tbody tr:active { 
+    background: linear-gradient(135deg, #ab47bc, #ce93d8, #ff7043, #ff9800); 
+    color: white; 
+  }
+
+  /* Tablet breakpoint */
+  @media (max-width: 600px) {
+    body { padding: 8px; }
+    .score-card { padding: 18px; margin: 6px 0; }
+    .player-name { font-size: 20px; margin-bottom: 18px; }
+    .score { font-size: 28px; min-width: 50px; }
+    .btn { 
+      min-width: 56px; 
+      min-height: 56px; 
+      width: 56px; 
+      height: 56px; 
+      font-size: 26px; 
+    }
+    .btn.confirm, .btn.new-game { 
+      font-size: 16px; 
+      min-height: 52px; 
+    }
+    h2 { font-size: 24px; }
+    th, td { padding: 10px 6px; font-size: 13px; }
+  }
+
+  /* Mobile breakpoint */
+  @media (max-width: 480px) {
+    body { padding: 5px; }
+    .top-bar { margin-bottom: 15px; }
+    .history-btn { font-size: 26px; padding: 8px; }
+    .controls-top, .controls-bottom { gap: 12px; margin-bottom: 15px; margin-top: 15px; }
+    .score-card { 
+      padding: 16px; 
+      margin: 5px 0; 
+      border-radius: 16px;
+    }
+    .player-name { font-size: 19px; margin-bottom: 16px; }
+    .score-controls { padding: 0 5px; }
+    .score { font-size: 26px; min-width: 50px; }
+    .btn { 
+      min-width: 54px; 
+      min-height: 54px; 
+      width: 54px; 
+      height: 54px; 
+      font-size: 24px; 
+    }
+    .btn.confirm, .btn.new-game { 
+      font-size: 15px; 
+      min-height: 50px;
+      max-width: 100%;
+    }
+    h2 { font-size: 22px; margin-bottom: 15px; }
+    th, td { padding: 10px 6px; font-size: 12px; }
+    tfoot td { font-size: 13px; }
+  }
+
+  /* Small mobile breakpoint */
+  @media (max-width: 360px) {
+    .score-card { padding: 14px; }
+    .player-name { font-size: 18px; }
+    .score-controls { padding: 0; }
+    .score { font-size: 24px; min-width: 45px; }
+    .btn { 
+      min-width: 50px; 
+      min-height: 50px; 
+      width: 50px; 
+      height: 50px; 
+      font-size: 22px; 
+    }
+    .btn.confirm, .btn.new-game { 
+      font-size: 14px; 
+      min-height: 48px; 
+    }
+    h2 { font-size: 20px; }
+    th, td { padding: 8px 4px; font-size: 11px; }
+    tfoot td { font-size: 12px; }
+    .history-btn { font-size: 24px; }
+  }
+
+  /* Custom Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px 25px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .modal-header {
+    font-size: 22px;
+    font-weight: 700;
+    color: #8e24aa;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .modal-body {
+    margin-bottom: 25px;
+  }
+
+  .modal-label {
+    display: block;
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+
+  .modal-input:focus {
+    border-color: #8e24aa;
+    box-shadow: 0 0 0 3px rgba(142, 36, 170, 0.1);
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  .modal-btn {
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
     border: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: 100;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 90px;
+    touch-action: manipulation;
+  }
+
+  .modal-btn.cancel {
+    background: linear-gradient(135deg, #ce93d8, #ba68c8, #ffab91);
+    color: white;
+    box-shadow: 0 3px 10px rgba(142, 36, 170, 0.2);
+  }
+
+  .modal-btn.cancel:active {
+    background: linear-gradient(135deg, #ba68c8, #ab47bc, #ff8a65);
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(142, 36, 170, 0.3);
+  }
+
+  .modal-btn.confirm {
+    background: linear-gradient(135deg, #8e24aa, #ab47bc, #ff7043, #ff9800);
+    color: white;
+    box-shadow: 0 3px 10px rgba(142, 36, 170, 0.3);
+  }
+
+  .modal-btn.confirm:active {
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0, #ff5722, #f57c00);
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(142, 36, 170, 0.4);
+  }
+
+  @media (max-width: 480px) {
+    .modal-content {
+      padding: 25px 20px;
+    }
+    .modal-header {
+      font-size: 20px;
+    }
+    .modal-input {
+      padding: 12px 14px;
+      font-size: 15px;
+    }
+    .modal-btn {
+      padding: 11px 20px;
+      font-size: 14px;
+      min-width: 80px;
+    }
   }
 </style>
 </head>
 <body>
 
 <div id="app">
-  <div v-for="(p, i) in players" :key="i" class="player" :class="colors[i]">
-    <div class="bg">
-      <div class="menu-dots">⋯</div>
-      <div class="name">{{ p.name }}</div>
-      <div class="controls">
-        <button @click="change(i, -1)">–</button>
-        <div class="score" :class="{jump: p.jump}">{{ p.score }}</div>
-        <button @click="change(i, 1)">+</button>
-      </div>
-    </div>
+  <div class="top-bar">
+    <button class="history-btn" @click="showHistory = true" title="History">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+    </button>
   </div>
 
-  <button class="fab" @click="showModal=true">
-    <i class="fas fa-plus"></i>
-  </button>
-</div>
+  <template v-if="!showHistory">
+    <div class="controls-top">
+      <button class="btn new-game" @click="newGameAndInput()">Tạo ván mới / Nhập người chơi</button>
+    </div>
 
-<!-- Modal đổi tên người chơi -->
-<div class="modal-overlay" v-if="showModal" @click="showModal=false">
-  <div class="modal-content" @click.stop>
-    <h2>Nhập tên người chơi</h2>
-    <input v-model="input" placeholder="Hawk, Horse, Hedgehog, Shark" @keyup.enter="saveNames">
-    <div style="margin-top:20px; text-align:right;">
-      <button @click="showModal=false" style="margin-right:12px; padding:12px 24px; background:#555; border-radius:12px;">Hủy</button>
-      <button @click="saveNames" style="padding:12px 28px; background:#8e24aa; border-radius:12px;">OK</button>
+    <div class="score-card" 
+         v-for="(player, index) in players" 
+         :key="index">
+      <div class="player-name">{{ player.name }}</div>
+      <div class="score-controls">
+        <button class="btn minus" @click="changeScore(index, -1)">-</button>
+        <div class="score"
+             :class="[
+               { changed: player.score !== player.originalScore,
+                 negative: player.score < 0,
+                 positive: player.score >= 0,
+                 animate: player.animate
+               }
+             ]">{{ player.score }}</div>
+        <button class="btn plus" @click="changeScore(index, 1)">+</button>
+      </div>
+    </div>
+
+    <div class="controls-bottom">
+      <button class="btn confirm" v-if="hasPendingChanges" @click="confirmAll()">Xác nhận tất cả</button>
+    </div>
+  </template>
+
+  <template v-else>
+    <h2>Lịch sử điểm</h2>
+    <div style="width: 100%; padding: 0 10px; margin-bottom: 15px;">
+      <button class="btn new-game" @click="showHistory = false">← Quay lại</button>
+    </div>
+    <div class="table-container" v-if="history.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th v-for="player in players" :key="player.name">{{ player.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(entry,index) in history" :key="index">
+            <td>{{ index + 1 }}</td>
+            <td v-for="score in entry.scores" :key="score.name">{{ score.score }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Tổng</td>
+            <td v-for="(player,index) in players" :key="player.name">
+              {{ totalScore(index) }}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div v-else style="padding: 20px; text-align: center; color: #8e24aa; font-size: 16px;">Không có lịch sử</div>
+  </template>
+
+  <!-- Custom Modal -->
+  <div class="modal-overlay" v-if="showModal">
+    <div class="modal-content">
+      <div class="modal-header">Nhập danh sách người chơi</div>
+      <div class="modal-body">
+        <label class="modal-label">Nhập tên các người chơi, phân cách bằng dấu phẩy (,)</label>
+        <input 
+          type="text" 
+          class="modal-input" 
+          v-model="playerInput"
+          placeholder="Ví dụ: An, Bình, Chi, Dũng"
+          @keyup.enter="confirmModal"
+          ref="modalInput"
+        />
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" @click="closeModal">Hủy</button>
+        <button class="modal-btn confirm" @click="confirmModal">Xác nhận</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script>
-const { createApp } = Vue
+const { createApp, nextTick } = Vue;
+
 createApp({
   data() {
     return {
-      colors: ['hawk','horse','hedgehog','shark'],
       players: [
-        {name:'Hawk', score:0, jump:false},
-        {name:'Horse', score:0, jump:false},
-        {name:'Hedgehog', score:0, jump:false},
-        {name:'Shark', score:0, jump:false}
+        { name: 'Player 1', score: 0, originalScore: 0, animate: false },
+        { name: 'Player 2', score: 0, originalScore: 0, animate: false },
+        { name: 'Player 3', score: 0, originalScore: 0, animate: false },
+        { name: 'Player 4', score: 0, originalScore: 0, animate: false },
       ],
-      showModal: false,
-      input: '',
+      showHistory: false,
+      history: [],
       db: null,
-      history: []
+      showModal: false,
+      playerInput: ''
+    }
+  },
+  computed: {
+    hasPendingChanges() {
+      return this.players.some(p => p.score !== p.originalScore);
     }
   },
   methods: {
-    change(i, delta) {
-      this.players[i].score += delta
-      this.players[i].jump = true
-      setTimeout(()=> this.players[i].jump = false, 350)
-      this.saveState()
+    changeScore(index, delta) {
+      this.players[index].score += delta;
+      this.players[index].animate = true;
+      nextTick(() => {
+        setTimeout(() => this.players[index].animate = false, 200);
+      });
+      this.saveCurrentState();
     },
-    saveNames() {
-      const names = this.input.split(',').map(s=>s.trim()).filter(Boolean)
-      if(names.length===4){
-        this.players = names.map((n,i)=>({name:n, score:0, jump:false}))
-        this.history = []
-        this.clearHistoryDB()
-        this.saveState()
-      }
-      this.showModal = false
+    confirmAll() {
+      const timestamp = new Date().toLocaleString();
+      const scoresSnapshot = this.players.map(p => ({ name: p.name, score: p.score - p.originalScore}));
+      this.saveHistory({scores: scoresSnapshot, time: timestamp});
+      this.players.forEach(p => p.originalScore = p.score);
+      this.loadHistory();
+      this.saveCurrentState();
     },
-    // === IndexedDB giữ nguyên như cũ ===
-    initDB() {
-      const req = indexedDB.open('ScoreAppV2', 2)
-      req.onupgradeneeded = e => {
-        const db = e.target.result
-        if(!db.objectStoreNames.contains('state')) db.createObjectStore('state',{keyPath:'id'})
-        if(!db.objectStoreNames.contains('history')) db.createObjectStore('history',{autoIncrement:true})
-      }
-      req.onsuccess = e => {
-        this.db = e.target.result
-        this.loadState()
-      }
-    },
-    saveState() {
-      if(!this.db) return
-      const tx = this.db.transaction('state','readwrite')
-      tx.objectStore('state').put({id:'main', players: this.players})
-    },
-    loadState() {
-      if(!this.db) return
-      const tx = this.db.transaction('state','readonly')
-      const req = tx.objectStore('state').get('main')
-      req.onsuccess = () => {
-        if(req.result && req.result.players.length===4){
-          this.players = req.result.players.map(p=>({...p, jump:false}))
+    newGameAndInput() {
+      this.playerInput = '';
+      this.showModal = true;
+      nextTick(() => {
+        if (this.$refs.modalInput) {
+          this.$refs.modalInput.focus();
         }
-      }
+      });
     },
-    clearHistoryDB() {
-      if(!this.db) return
-      this.db.transaction('history','readwrite').objectStore('history').clear()
+    closeModal() {
+      this.showModal = false;
+      this.playerInput = '';
+    },
+    confirmModal() {
+      const namesInput = this.playerInput.trim();
+      if (!namesInput) {
+        this.closeModal();
+        return;
+      }
+      const names = namesInput.split(',').map(n => n.trim()).filter(n => n);
+      if (names.length === 0) {
+        this.closeModal();
+        return;
+      }
+
+      // Reset players
+      this.players = names.map(name => ({ name, score: 0, originalScore: 0, animate: false }));
+
+      // Clear history
+      this.history = [];
+      if(this.db){
+        const tx = this.db.transaction("history", "readwrite");
+        const store = tx.objectStore("history");
+        store.clear();
+      }
+
+      this.saveCurrentState();
+      this.closeModal();
+    },
+    initDB() {
+      const request = indexedDB.open("GameScoreDB", 2);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains("history")){
+          db.createObjectStore("history", { keyPath: "id", autoIncrement:true });
+        }
+        if(!db.objectStoreNames.contains("currentState")){
+          db.createObjectStore("currentState", { keyPath: "id" });
+        }
+      };
+      request.onsuccess = (e) => {
+        this.db = e.target.result;
+        this.loadCurrentState();
+        this.loadHistory();
+      };
+      request.onerror = (e) => console.error("DB error", e);
+    },
+    saveHistory(item) {
+      const tx = this.db.transaction("history", "readwrite");
+      const store = tx.objectStore("history");
+      store.add(item);
+    },
+    loadHistory() {
+      const tx = this.db.transaction("history", "readonly");
+      const store = tx.objectStore("history");
+      const all = store.getAll();
+      all.onsuccess = () => {
+        this.history = all.result.reverse();
+      };
+    },
+    saveCurrentState() {
+      if (!this.db) return;
+      const tx = this.db.transaction("currentState", "readwrite");
+      const store = tx.objectStore("currentState");
+      store.put({ 
+        id: 'players', 
+        players: this.players.map(p => ({ 
+          name: p.name, 
+          score: p.score, 
+          originalScore: p.originalScore 
+        })) 
+      });
+    },
+    loadCurrentState() {
+      if (!this.db) return;
+      const tx = this.db.transaction("currentState", "readonly");
+      const store = tx.objectStore("currentState");
+      const request = store.get('players');
+      request.onsuccess = () => {
+        if (request.result && request.result.players && request.result.players.length > 0) {
+          this.players = request.result.players.map(p => ({ 
+            ...p, 
+            animate: false 
+          }));
+        }
+      };
+    },
+    totalScore(playerIndex) {
+      return this.history.reduce((sum, entry) => {
+        if(entry.scores && entry.scores[playerIndex] !== undefined){
+          return sum + entry.scores[playerIndex].score;
+        }
+        return sum;
+      }, 0);
     }
   },
   mounted() {
-    this.initDB()
-    // Nếu chưa có tên thì tự mở modal
-    setTimeout(()=>{
-      if(this.players.every(p=>p.name.includes('Player') || p.name==='' )) this.showModal=true
-    },800)
+    this.initDB();
+    // Auto prompt for player names on first load only if no saved state
+    setTimeout(() => {
+      const isDefaultPlayers = this.players.every(p => p.name.startsWith('Player '));
+      if (isDefaultPlayers) {
+        this.newGameAndInput();
+      }
+    }, 500);
   }
-}).mount('#app')
+}).mount('#app');
 </script>
+
+<script>
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((registration) => {
+        console.log('ServiceWorker registration successful:', registration.scope);
+      })
+      .catch((err) => {
+        console.log('ServiceWorker registration failed:', err);
+      });
+  });
+}
+</script>
+
 </body>
 </html>
