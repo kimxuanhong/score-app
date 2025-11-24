@@ -693,11 +693,30 @@
           this.showDeleteModal = true;
         },
         deletePlayer() {
+          const deletedPlayerName = this.players[this.deletingPlayerIndex].name;
           this.showDeleteModal = false;
           this.showActionMenu = -1;
+
           // Use nextTick to ensure modal is closed before deleting
           this.$nextTick(() => {
+            // Remove player from players array
             this.players.splice(this.deletingPlayerIndex, 1);
+
+            // Remove player's scores from all history entries
+            this.history.forEach(entry => {
+              entry.scores = entry.scores.filter(score => score.name !== deletedPlayerName);
+            });
+
+            // Update history in database
+            if (this.db) {
+              const tx = this.db.transaction("history", "readwrite");
+              const store = tx.objectStore("history");
+              store.clear();
+              this.history.forEach(entry => {
+                store.add(entry);
+              });
+            }
+
             this.saveCurrentState();
           });
         },
