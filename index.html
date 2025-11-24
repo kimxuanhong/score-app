@@ -557,6 +557,21 @@
       </div>
     </div>
 
+    <!-- Reset Confirmation Modal -->
+    <div class="modal-overlay" v-if="showResetModal">
+      <div class="modal-content">
+        <div class="modal-header">Reset All Scores</div>
+        <div class="modal-body">
+          <div style="color: #888; font-size: 14px;">Are you sure you want to reset all scores to 0? This will save the
+            current scores to history.</div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn" @click="showResetModal = false">Cancel</button>
+          <button class="modal-btn" @click="confirmReset">Reset</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -582,6 +597,7 @@
           editingName: '',
 
           showSettingsModal: false,
+          showResetModal: false,
           playerInput: ''
         }
       },
@@ -654,19 +670,21 @@
           }
         },
         resetScores() {
-          if (confirm('Reset all scores to 0?')) {
-            // Save history first
-            this.saveHistory({
-              scores: this.players.map(p => ({ name: p.name, score: p.score })),
-              time: new Date().toLocaleString()
-            });
+          this.showResetModal = true;
+        },
+        confirmReset() {
+          this.showResetModal = false;
+          // Save history first
+          this.saveHistory({
+            scores: this.players.map(p => ({ name: p.name, score: p.score })),
+            time: new Date().toLocaleString()
+          });
 
-            this.players.forEach(p => {
-              p.score = 0;
-              p.originalScore = 0;
-            });
-            this.saveCurrentState();
-          }
+          this.players.forEach(p => {
+            p.score = 0;
+            p.originalScore = 0;
+          });
+          this.saveCurrentState();
         },
 
         // Persistence
