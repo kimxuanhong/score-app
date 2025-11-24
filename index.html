@@ -167,6 +167,7 @@
       padding: 5px;
       cursor: pointer;
       opacity: 0.8;
+      z-index: 10;
     }
 
     .score-display {
@@ -179,7 +180,7 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 80px;
+      width: 60px;
       background: transparent;
       border: none;
       color: rgba(255, 255, 255, 0.7);
@@ -427,7 +428,7 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-      z-index: 50;
+      z-index: 100;
       min-width: 120px;
       animation: fadeIn 0.2s ease;
     }
@@ -503,7 +504,7 @@
         </button>
 
         <!-- Action Menu -->
-        <div class="action-menu" v-if="showActionMenu === index">
+        <div class="action-menu" v-if="showActionMenu === index" @click.stop>
           <div class="action-menu-item" @click="confirmDeletePlayer(index)">Delete</div>
         </div>
 
@@ -692,9 +693,13 @@
           this.showDeleteModal = true;
         },
         deletePlayer() {
-          this.players.splice(this.deletingPlayerIndex, 1);
           this.showDeleteModal = false;
-          this.saveCurrentState();
+          this.showActionMenu = -1;
+          // Use nextTick to ensure modal is closed before deleting
+          this.$nextTick(() => {
+            this.players.splice(this.deletingPlayerIndex, 1);
+            this.saveCurrentState();
+          });
         },
         editPlayer(index) {
           this.editingIndex = index;
@@ -705,13 +710,6 @@
         savePlayerName() {
           if (this.editingName.trim()) {
             this.players[this.editingIndex].name = this.editingName.trim();
-            this.showEditModal = false;
-            this.saveCurrentState();
-          }
-        },
-        deletePlayer() {
-          if (confirm('Delete ' + this.players[this.editingIndex].name + '?')) {
-            this.players.splice(this.editingIndex, 1);
             this.showEditModal = false;
             this.saveCurrentState();
           }
