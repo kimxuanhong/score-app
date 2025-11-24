@@ -13,10 +13,9 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
     :root {
       --bg-color: #000000;
       --text-color: #ffffff;
@@ -35,7 +34,7 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Inter", sans-serif;
     }
 
     body {
@@ -286,27 +285,22 @@
 
     /* History View */
     .history-view {
-      padding: 20px;
-      color: white;
-    }
-
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    .history-table th,
-    .history-table td {
       padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #333;
+      color: white;
+      width: 100%;
     }
 
-    .history-table th {
-      color: #888;
-      font-weight: normal;
-      font-size: 14px;
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 0 5px;
+    }
+
+    .history-title {
+      font-size: 20px;
+      font-weight: 600;
     }
 
     .back-btn {
@@ -318,6 +312,110 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      padding: 8px 0;
+    }
+
+    .table-container {
+      background: #1c1c1e;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .history-table th {
+      background: #2c2c2e;
+      color: #8e8e93;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #3a3a3c;
+    }
+
+    .history-table td {
+      padding: 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid #2c2c2e;
+      color: white;
+    }
+
+    .history-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Visual Feedback */
+    .score-display.changed {
+      color: #ffd60a;
+      text-shadow: 0 0 20px rgba(255, 214, 10, 0.5);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.85;
+        transform: scale(1.05);
+      }
+    }
+
+    /* Confirm Button */
+    .confirm-footer {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      z-index: 100;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
+
+    .btn-confirm {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+
+    .btn-confirm:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
     }
   </style>
 </head>
@@ -327,15 +425,24 @@
   <div id="app">
     <!-- Top Bar -->
     <div class="header" v-if="!showHistory">
-      <button class="icon-btn" @click="openSettings">
-        <!-- Gear Icon -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path
-            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-          </path>
-        </svg>
-      </button>
+      <div style="display: flex; gap: 5px;">
+        <button class="icon-btn" @click="openSettings">
+          <!-- Gear Icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+        </button>
+        <button class="icon-btn" @click="showHistory = true">
+          <!-- History Icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </button>
+      </div>
       <div class="header-right">
         <button class="icon-btn" @click="resetScores">
           <!-- Refresh Icon -->
@@ -369,37 +476,50 @@
         </button>
 
         <button class="control-btn minus" @click="changeScore(index, -1)">−</button>
-        <div class="score-display">{{ player.score }}</div>
+        <div class="score-display" :class="{ changed: player.score !== player.originalScore }">{{ player.score }}</div>
         <button class="control-btn plus" @click="changeScore(index, 1)">+</button>
+      </div>
+
+      <!-- Confirm Button -->
+      <div class="confirm-footer" v-if="hasPendingChanges">
+        <button class="btn-confirm" @click="confirmAll">Confirm Changes</button>
       </div>
     </template>
 
     <!-- History View -->
     <template v-else>
       <div class="history-view">
-        <button class="back-btn" @click="showHistory = false">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-          Back
-        </button>
-        <h2 style="margin-top: 20px;">History</h2>
-        <table class="history-table" v-if="history.length > 0">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th v-for="player in players" :key="player.name">{{ player.name }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(entry, index) in history" :key="index">
-              <td>{{ index + 1 }}</td>
-              <td v-for="score in entry.scores" :key="score.name">{{ score.score }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-else style="text-align: center; margin-top: 40px; color: #666;">No history yet</div>
+        <div class="history-header">
+          <button class="back-btn" @click="showHistory = false">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Back
+          </button>
+          <div class="history-title">History</div>
+          <div style="width: 60px;"></div>
+        </div>
+
+        <div class="table-container" v-if="history.length > 0">
+          <div style="overflow-x: auto;">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th v-for="player in players" :key="player.name">{{ player.name }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(entry, index) in history" :key="index">
+                  <td>{{ index + 1 }}</td>
+                  <td v-for="score in entry.scores" :key="score.name">{{ score.score }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div v-else style="text-align: center; margin-top: 60px; color: #636366; font-size: 16px;">No history yet</div>
       </div>
     </template>
 
@@ -447,10 +567,10 @@
       data() {
         return {
           players: [
-            { name: 'Hawk', score: 0 },
-            { name: 'Horse', score: 0 },
-            { name: 'Hedgehog', score: 0 },
-            { name: 'Shark', score: 0 },
+            { name: 'Hawk', score: 0, originalScore: 0 },
+            { name: 'Horse', score: 0, originalScore: 0 },
+            { name: 'Hedgehog', score: 0, originalScore: 0 },
+            { name: 'Shark', score: 0, originalScore: 0 },
           ],
           showHistory: false,
           history: [],
@@ -465,14 +585,30 @@
           playerInput: ''
         }
       },
+      computed: {
+        hasPendingChanges() {
+          return this.players.some(p => p.score !== p.originalScore);
+        }
+      },
       methods: {
         changeScore(index, delta) {
           this.players[index].score += delta;
           this.saveCurrentState();
         },
+        confirmAll() {
+          if (this.hasPendingChanges) {
+            const scoresSnapshot = this.players.map(p => ({
+              name: p.name,
+              score: p.score - p.originalScore
+            }));
+            this.saveHistory({ scores: scoresSnapshot, time: new Date().toLocaleString() });
+            this.players.forEach(p => p.originalScore = p.score);
+            this.saveCurrentState();
+          }
+        },
         addPlayer() {
           const newIndex = this.players.length + 1;
-          this.players.push({ name: 'Player ' + newIndex, score: 0 });
+          this.players.push({ name: 'Player ' + newIndex, score: 0, originalScore: 0 });
           this.saveCurrentState();
         },
         editPlayer(index) {
@@ -512,7 +648,7 @@
               });
             }
 
-            this.players = names.map(name => ({ name, score: 0 }));
+            this.players = names.map(name => ({ name, score: 0, originalScore: 0 }));
             this.showSettingsModal = false;
             this.saveCurrentState();
           }
@@ -525,7 +661,10 @@
               time: new Date().toLocaleString()
             });
 
-            this.players.forEach(p => p.score = 0);
+            this.players.forEach(p => {
+              p.score = 0;
+              p.originalScore = 0;
+            });
             this.saveCurrentState();
           }
         },
@@ -563,7 +702,11 @@
           const tx = this.db.transaction("currentState", "readwrite");
           tx.objectStore("currentState").put({
             id: 'players',
-            players: JSON.parse(JSON.stringify(this.players))
+            players: this.players.map(p => ({
+              name: p.name,
+              score: p.score,
+              originalScore: p.originalScore
+            }))
           });
         },
         loadCurrentState() {
@@ -572,7 +715,10 @@
           const request = tx.objectStore("currentState").get('players');
           request.onsuccess = () => {
             if (request.result && request.result.players) {
-              this.players = request.result.players;
+              this.players = request.result.players.map(p => ({
+                ...p,
+                originalScore: p.originalScore !== undefined ? p.originalScore : p.score
+              }));
             }
           };
         }
