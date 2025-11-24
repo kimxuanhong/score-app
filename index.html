@@ -1,549 +1,594 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="description" content="Score Tracking App">
-<meta name="theme-color" content="#000000">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Score">
-<title>Score</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<style>
-  :root {
-    --bg-color: #000000;
-    --text-color: #ffffff;
-    --card-blue: #4a90e2;
-    --card-purple: #af52de;
-    --card-pink: #ff4081;
-    --card-red: #ff5252;
-    --card-orange: #ff9800;
-    --card-green: #4caf50;
-    --card-teal: #009688;
-    --card-indigo: #3f51b5;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="description" content="Score Tracking App">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Score">
+  <title>Score</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #000000;
+      --text-color: #ffffff;
+      --card-blue: #4a90e2;
+      --card-purple: #af52de;
+      --card-pink: #ff4081;
+      --card-red: #ff5252;
+      --card-orange: #ff9800;
+      --card-green: #4caf50;
+      --card-teal: #009688;
+      --card-indigo: #3f51b5;
+    }
 
-  * { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    -webkit-tap-highlight-color: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-  body {
-    background: var(--bg-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
-    padding-top: max(10px, env(safe-area-inset-top));
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-    overflow-x: hidden;
-  }
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      padding-top: max(10px, env(safe-area-inset-top));
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      overflow-x: hidden;
+    }
 
-  #app {
-    width: 100%;
-    max-width: 480px; /* Mobile focused width */
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+    #app {
+      width: 100%;
+      max-width: 480px;
+      /* Mobile focused width */
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-  /* Header */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 5px;
-    margin-bottom: 5px;
-  }
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 5px;
+      margin-bottom: 5px;
+    }
 
-  .icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #0a84ff; /* iOS Blue */
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.2s;
-  }
-  
-  .icon-btn:active {
-    opacity: 0.6;
-  }
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #0a84ff;
+      /* iOS Blue */
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s;
+    }
 
-  .icon-btn svg {
-    width: 24px;
-    height: 24px;
-    stroke-width: 2;
-  }
+    .icon-btn:active {
+      opacity: 0.6;
+    }
 
-  .header-right {
-    display: flex;
-    gap: 15px;
-  }
+    .icon-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 2;
+    }
 
-  /* Player Cards */
-  .player-card {
-    width: 100%;
-    height: 160px;
-    border-radius: 16px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    user-select: none;
-    transition: transform 0.1s;
-  }
+    .header-right {
+      display: flex;
+      gap: 15px;
+    }
 
-  .player-card:active {
-    transform: scale(0.98);
-  }
+    /* Player Cards */
+    .player-card {
+      width: 100%;
+      height: 160px;
+      border-radius: 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      user-select: none;
+      transition: transform 0.1s;
+    }
 
-  /* Card Colors */
-  .card-0 { background-color: var(--card-blue); }
-  .card-1 { background-color: var(--card-purple); }
-  .card-2 { background-color: var(--card-pink); }
-  .card-3 { background-color: var(--card-red); }
-  .card-4 { background-color: var(--card-orange); }
-  .card-5 { background-color: var(--card-green); }
-  .card-6 { background-color: var(--card-teal); }
-  .card-7 { background-color: var(--card-indigo); }
+    .player-card:active {
+      transform: scale(0.98);
+    }
 
-  .player-name {
-    position: absolute;
-    top: 15px;
-    left: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    opacity: 0.9;
-  }
+    /* Card Colors */
+    .card-0 {
+      background-color: var(--card-blue);
+    }
 
-  .card-options {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: white;
-    padding: 5px;
-    cursor: pointer;
-    opacity: 0.8;
-  }
+    .card-1 {
+      background-color: var(--card-purple);
+    }
 
-  .score-display {
-    font-size: 80px;
-    font-weight: 500;
-    line-height: 1;
-  }
+    .card-2 {
+      background-color: var(--card-pink);
+    }
 
-  .control-btn {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 80px;
-    background: transparent;
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 40px;
-    font-weight: 300;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-tap-highlight-color: transparent;
-  }
+    .card-3 {
+      background-color: var(--card-red);
+    }
 
-  .control-btn.minus { left: 0; padding-left: 10px; justify-content: flex-start; }
-  .control-btn.plus { right: 0; padding-right: 10px; justify-content: flex-end; }
+    .card-4 {
+      background-color: var(--card-orange);
+    }
 
-  .control-btn:active {
-    color: white;
-  }
+    .card-5 {
+      background-color: var(--card-green);
+    }
 
-  /* Modal */
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-  }
+    .card-6 {
+      background-color: var(--card-teal);
+    }
 
-  .modal-content {
-    background: #1c1c1e;
-    border-radius: 14px;
-    width: 85%;
-    max-width: 320px;
-    overflow: hidden;
-    text-align: center;
-  }
+    .card-7 {
+      background-color: var(--card-indigo);
+    }
 
-  .modal-header {
-    padding: 20px 15px 10px;
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
-  }
+    .player-name {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      font-size: 18px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
 
-  .modal-body {
-    padding: 0 15px 20px;
-  }
+    .card-options {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: white;
+      padding: 5px;
+      cursor: pointer;
+      opacity: 0.8;
+    }
 
-  .modal-input {
-    width: 100%;
-    background: #2c2c2e;
-    border: 1px solid #3a3a3c;
-    border-radius: 8px;
-    padding: 10px;
-    color: white;
-    font-size: 16px;
-    outline: none;
-    margin-top: 10px;
-  }
+    .score-display {
+      font-size: 80px;
+      font-weight: 500;
+      line-height: 1;
+    }
 
-  .modal-footer {
-    display: flex;
-    border-top: 1px solid #3a3a3c;
-  }
+    .control-btn {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 80px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 40px;
+      font-weight: 300;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  .modal-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 15px;
-    font-size: 17px;
-    cursor: pointer;
-    color: #0a84ff;
-  }
+    .control-btn.minus {
+      left: 0;
+      padding-left: 10px;
+      justify-content: flex-start;
+    }
 
-  .modal-btn:first-child {
-    border-right: 1px solid #3a3a3c;
-    font-weight: 400;
-  }
+    .control-btn.plus {
+      right: 0;
+      padding-right: 10px;
+      justify-content: flex-end;
+    }
 
-  .modal-btn:last-child {
-    font-weight: 600;
-  }
+    .control-btn:active {
+      color: white;
+    }
 
-  .modal-btn:active {
-    background: #2c2c2e;
-  }
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
 
-  /* History View */
-  .history-view {
-    padding: 20px;
-    color: white;
-  }
-  
-  .history-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .history-table th, .history-table td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #333;
-  }
-  
-  .history-table th {
-    color: #888;
-    font-weight: normal;
-    font-size: 14px;
-  }
+    .modal-content {
+      background: #1c1c1e;
+      border-radius: 14px;
+      width: 85%;
+      max-width: 320px;
+      overflow: hidden;
+      text-align: center;
+    }
 
-  .back-btn {
-    color: #0a84ff;
-    background: none;
-    border: none;
-    font-size: 17px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
+    .modal-header {
+      padding: 20px 15px 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+    }
 
-</style>
+    .modal-body {
+      padding: 0 15px 20px;
+    }
+
+    .modal-input {
+      width: 100%;
+      background: #2c2c2e;
+      border: 1px solid #3a3a3c;
+      border-radius: 8px;
+      padding: 10px;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      margin-top: 10px;
+    }
+
+    .modal-footer {
+      display: flex;
+      border-top: 1px solid #3a3a3c;
+    }
+
+    .modal-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 15px;
+      font-size: 17px;
+      cursor: pointer;
+      color: #0a84ff;
+    }
+
+    .modal-btn:first-child {
+      border-right: 1px solid #3a3a3c;
+      font-weight: 400;
+    }
+
+    .modal-btn:last-child {
+      font-weight: 600;
+    }
+
+    .modal-btn:active {
+      background: #2c2c2e;
+    }
+
+    /* History View */
+    .history-view {
+      padding: 20px;
+      color: white;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+
+    .history-table th {
+      color: #888;
+      font-weight: normal;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      color: #0a84ff;
+      background: none;
+      border: none;
+      font-size: 17px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="app">
-  <!-- Top Bar -->
-  <div class="header" v-if="!showHistory">
-    <button class="icon-btn" @click="openSettings">
-      <!-- Gear Icon -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-      </svg>
-    </button>
-    <div class="header-right">
-      <button class="icon-btn" @click="resetScores">
-        <!-- Refresh Icon -->
+  <div id="app">
+    <!-- Top Bar -->
+    <div class="header" v-if="!showHistory">
+      <button class="icon-btn" @click="openSettings">
+        <!-- Gear Icon -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 4v6h-6"></path>
-          <path d="M1 20v-6h6"></path>
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
         </svg>
       </button>
-      <button class="icon-btn" @click="addPlayer">
-        <!-- Plus Icon -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </button>
+      <div class="header-right">
+        <button class="icon-btn" @click="resetScores">
+          <!-- Refresh Icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" @click="addPlayer">
+          <!-- Plus Icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
     </div>
+
+    <!-- Main Game View -->
+    <template v-if="!showHistory">
+      <div v-for="(player, index) in players" :key="index" class="player-card" :class="'card-' + (index % 8)">
+        <div class="player-name">{{ player.name }}</div>
+        <button class="card-options" @click="editPlayer(index)">
+          <!-- Three dots -->
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="2"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+            <circle cx="19" cy="12" r="2"></circle>
+          </svg>
+        </button>
+
+        <button class="control-btn minus" @click="changeScore(index, -1)">−</button>
+        <div class="score-display">{{ player.score }}</div>
+        <button class="control-btn plus" @click="changeScore(index, 1)">+</button>
+      </div>
+    </template>
+
+    <!-- History View -->
+    <template v-else>
+      <div class="history-view">
+        <button class="back-btn" @click="showHistory = false">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Back
+        </button>
+        <h2 style="margin-top: 20px;">History</h2>
+        <table class="history-table" v-if="history.length > 0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th v-for="player in players" :key="player.name">{{ player.name }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(entry, index) in history" :key="index">
+              <td>{{ index + 1 }}</td>
+              <td v-for="score in entry.scores" :key="score.name">{{ score.score }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-else style="text-align: center; margin-top: 40px; color: #666;">No history yet</div>
+      </div>
+    </template>
+
+    <!-- Modals -->
+
+    <!-- Edit Player Modal -->
+    <div class="modal-overlay" v-if="showEditModal">
+      <div class="modal-content">
+        <div class="modal-header">Edit Player</div>
+        <div class="modal-body">
+          <input type="text" class="modal-input" v-model="editingName" placeholder="Player Name" ref="editInput"
+            @keyup.enter="savePlayerName">
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn" @click="deletePlayer" style="color: #ff453a;">Delete</button>
+          <button class="modal-btn" @click="showEditModal = false">Cancel</button>
+          <button class="modal-btn" @click="savePlayerName">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings/Input Modal -->
+    <div class="modal-overlay" v-if="showSettingsModal">
+      <div class="modal-content">
+        <div class="modal-header">New Game</div>
+        <div class="modal-body">
+          <div style="color: #888; font-size: 14px; margin-bottom: 10px;">Enter player names separated by comma</div>
+          <input type="text" class="modal-input" v-model="playerInput" placeholder="Hawk, Horse, Shark..."
+            ref="settingsInput">
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn" @click="showSettingsModal = false">Cancel</button>
+          <button class="modal-btn" @click="confirmNewGame">Start</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Main Game View -->
-  <template v-if="!showHistory">
-    <div 
-      v-for="(player, index) in players" 
-      :key="index"
-      class="player-card"
-      :class="'card-' + (index % 8)"
-    >
-      <div class="player-name">{{ player.name }}</div>
-      <button class="card-options" @click="editPlayer(index)">
-        <!-- Three dots -->
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="5" cy="12" r="2"></circle>
-          <circle cx="12" cy="12" r="2"></circle>
-          <circle cx="19" cy="12" r="2"></circle>
-        </svg>
-      </button>
-      
-      <button class="control-btn minus" @click="changeScore(index, -1)">−</button>
-      <div class="score-display">{{ player.score }}</div>
-      <button class="control-btn plus" @click="changeScore(index, 1)">+</button>
-    </div>
-  </template>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, nextTick } = Vue;
 
-  <!-- History View -->
-  <template v-else>
-    <div class="history-view">
-      <button class="back-btn" @click="showHistory = false">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        Back
-      </button>
-      <h2 style="margin-top: 20px;">History</h2>
-      <table class="history-table" v-if="history.length > 0">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th v-for="player in players" :key="player.name">{{ player.name }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(entry, index) in history" :key="index">
-            <td>{{ index + 1 }}</td>
-            <td v-for="score in entry.scores" :key="score.name">{{ score.score }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div v-else style="text-align: center; margin-top: 40px; color: #666;">No history yet</div>
-    </div>
-  </template>
+    createApp({
+      data() {
+        return {
+          players: [
+            { name: 'Hawk', score: 0 },
+            { name: 'Horse', score: 0 },
+            { name: 'Hedgehog', score: 0 },
+            { name: 'Shark', score: 0 },
+          ],
+          showHistory: false,
+          history: [],
+          db: null,
 
-  <!-- Modals -->
-  
-  <!-- Edit Player Modal -->
-  <div class="modal-overlay" v-if="showEditModal">
-    <div class="modal-content">
-      <div class="modal-header">Edit Player</div>
-      <div class="modal-body">
-        <input type="text" class="modal-input" v-model="editingName" placeholder="Player Name" ref="editInput" @keyup.enter="savePlayerName">
-      </div>
-      <div class="modal-footer">
-        <button class="modal-btn" @click="deletePlayer" style="color: #ff453a;">Delete</button>
-        <button class="modal-btn" @click="showEditModal = false">Cancel</button>
-        <button class="modal-btn" @click="savePlayerName">Save</button>
-      </div>
-    </div>
-  </div>
+          // Modals
+          showEditModal: false,
+          editingIndex: -1,
+          editingName: '',
 
-  <!-- Settings/Input Modal -->
-  <div class="modal-overlay" v-if="showSettingsModal">
-    <div class="modal-content">
-      <div class="modal-header">New Game</div>
-      <div class="modal-body">
-        <div style="color: #888; font-size: 14px; margin-bottom: 10px;">Enter player names separated by comma</div>
-        <input type="text" class="modal-input" v-model="playerInput" placeholder="Hawk, Horse, Shark..." ref="settingsInput">
-      </div>
-      <div class="modal-footer">
-        <button class="modal-btn" @click="showSettingsModal = false">Cancel</button>
-        <button class="modal-btn" @click="confirmNewGame">Start</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script>
-const { createApp, nextTick } = Vue;
-
-createApp({
-  data() {
-    return {
-      players: [
-        { name: 'Hawk', score: 0 },
-        { name: 'Horse', score: 0 },
-        { name: 'Hedgehog', score: 0 },
-        { name: 'Shark', score: 0 },
-      ],
-      showHistory: false,
-      history: [],
-      db: null,
-      
-      // Modals
-      showEditModal: false,
-      editingIndex: -1,
-      editingName: '',
-      
-      showSettingsModal: false,
-      playerInput: ''
-    }
-  },
-  methods: {
-    changeScore(index, delta) {
-      this.players[index].score += delta;
-      this.saveCurrentState();
-    },
-    addPlayer() {
-      const newIndex = this.players.length + 1;
-      this.players.push({ name: 'Player ' + newIndex, score: 0 });
-      this.saveCurrentState();
-    },
-    editPlayer(index) {
-      this.editingIndex = index;
-      this.editingName = this.players[index].name;
-      this.showEditModal = true;
-      nextTick(() => this.$refs.editInput.focus());
-    },
-    savePlayerName() {
-      if (this.editingName.trim()) {
-        this.players[this.editingIndex].name = this.editingName.trim();
-        this.showEditModal = false;
-        this.saveCurrentState();
-      }
-    },
-    deletePlayer() {
-      if (confirm('Delete ' + this.players[this.editingIndex].name + '?')) {
-        this.players.splice(this.editingIndex, 1);
-        this.showEditModal = false;
-        this.saveCurrentState();
-      }
-    },
-    openSettings() {
-      this.playerInput = this.players.map(p => p.name).join(', ');
-      this.showSettingsModal = true;
-      nextTick(() => this.$refs.settingsInput.focus());
-    },
-    confirmNewGame() {
-      const names = this.playerInput.split(',').map(n => n.trim()).filter(n => n);
-      if (names.length > 0) {
-        // Save current game to history before resetting if scores exist
-        const hasScores = this.players.some(p => p.score !== 0);
-        if (hasScores) {
-           this.saveHistory({
-             scores: this.players.map(p => ({name: p.name, score: p.score})),
-             time: new Date().toLocaleString()
-           });
+          showSettingsModal: false,
+          playerInput: ''
         }
-        
-        this.players = names.map(name => ({ name, score: 0 }));
-        this.showSettingsModal = false;
-        this.saveCurrentState();
+      },
+      methods: {
+        changeScore(index, delta) {
+          this.players[index].score += delta;
+          this.saveCurrentState();
+        },
+        addPlayer() {
+          const newIndex = this.players.length + 1;
+          this.players.push({ name: 'Player ' + newIndex, score: 0 });
+          this.saveCurrentState();
+        },
+        editPlayer(index) {
+          this.editingIndex = index;
+          this.editingName = this.players[index].name;
+          this.showEditModal = true;
+          nextTick(() => this.$refs.editInput.focus());
+        },
+        savePlayerName() {
+          if (this.editingName.trim()) {
+            this.players[this.editingIndex].name = this.editingName.trim();
+            this.showEditModal = false;
+            this.saveCurrentState();
+          }
+        },
+        deletePlayer() {
+          if (confirm('Delete ' + this.players[this.editingIndex].name + '?')) {
+            this.players.splice(this.editingIndex, 1);
+            this.showEditModal = false;
+            this.saveCurrentState();
+          }
+        },
+        openSettings() {
+          this.playerInput = this.players.map(p => p.name).join(', ');
+          this.showSettingsModal = true;
+          nextTick(() => this.$refs.settingsInput.focus());
+        },
+        confirmNewGame() {
+          const names = this.playerInput.split(',').map(n => n.trim()).filter(n => n);
+          if (names.length > 0) {
+            // Save current game to history before resetting if scores exist
+            const hasScores = this.players.some(p => p.score !== 0);
+            if (hasScores) {
+              this.saveHistory({
+                scores: this.players.map(p => ({ name: p.name, score: p.score })),
+                time: new Date().toLocaleString()
+              });
+            }
+
+            this.players = names.map(name => ({ name, score: 0 }));
+            this.showSettingsModal = false;
+            this.saveCurrentState();
+          }
+        },
+        resetScores() {
+          if (confirm('Reset all scores to 0?')) {
+            // Save history first
+            this.saveHistory({
+              scores: this.players.map(p => ({ name: p.name, score: p.score })),
+              time: new Date().toLocaleString()
+            });
+
+            this.players.forEach(p => p.score = 0);
+            this.saveCurrentState();
+          }
+        },
+
+        // Persistence
+        initDB() {
+          const request = indexedDB.open("GameScoreDB", 2);
+          request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains("history")) db.createObjectStore("history", { keyPath: "id", autoIncrement: true });
+            if (!db.objectStoreNames.contains("currentState")) db.createObjectStore("currentState", { keyPath: "id" });
+          };
+          request.onsuccess = (e) => {
+            this.db = e.target.result;
+            this.loadCurrentState();
+            this.loadHistory();
+          };
+        },
+        saveHistory(item) {
+          if (!this.db) return;
+          const tx = this.db.transaction("history", "readwrite");
+          tx.objectStore("history").add(item);
+          this.loadHistory();
+        },
+        loadHistory() {
+          if (!this.db) return;
+          const tx = this.db.transaction("history", "readonly");
+          const all = tx.objectStore("history").getAll();
+          all.onsuccess = () => {
+            this.history = all.result.reverse();
+          };
+        },
+        saveCurrentState() {
+          if (!this.db) return;
+          const tx = this.db.transaction("currentState", "readwrite");
+          tx.objectStore("currentState").put({
+            id: 'players',
+            players: JSON.parse(JSON.stringify(this.players))
+          });
+        },
+        loadCurrentState() {
+          if (!this.db) return;
+          const tx = this.db.transaction("currentState", "readonly");
+          const request = tx.objectStore("currentState").get('players');
+          request.onsuccess = () => {
+            if (request.result && request.result.players) {
+              this.players = request.result.players;
+            }
+          };
+        }
+      },
+      mounted() {
+        this.initDB();
       }
-    },
-    resetScores() {
-      if (confirm('Reset all scores to 0?')) {
-        // Save history first
-        this.saveHistory({
-             scores: this.players.map(p => ({name: p.name, score: p.score})),
-             time: new Date().toLocaleString()
-        });
-        
-        this.players.forEach(p => p.score = 0);
-        this.saveCurrentState();
-      }
-    },
-    
-    // Persistence
-    initDB() {
-      const request = indexedDB.open("GameScoreDB", 2);
-      request.onupgradeneeded = (e) => {
-        const db = e.target.result;
-        if(!db.objectStoreNames.contains("history")) db.createObjectStore("history", { keyPath: "id", autoIncrement:true });
-        if(!db.objectStoreNames.contains("currentState")) db.createObjectStore("currentState", { keyPath: "id" });
-      };
-      request.onsuccess = (e) => {
-        this.db = e.target.result;
-        this.loadCurrentState();
-        this.loadHistory();
-      };
-    },
-    saveHistory(item) {
-      if(!this.db) return;
-      const tx = this.db.transaction("history", "readwrite");
-      tx.objectStore("history").add(item);
-      this.loadHistory();
-    },
-    loadHistory() {
-      if(!this.db) return;
-      const tx = this.db.transaction("history", "readonly");
-      const all = tx.objectStore("history").getAll();
-      all.onsuccess = () => {
-        this.history = all.result.reverse();
-      };
-    },
-    saveCurrentState() {
-      if (!this.db) return;
-      const tx = this.db.transaction("currentState", "readwrite");
-      tx.objectStore("currentState").put({ 
-        id: 'players', 
-        players: JSON.parse(JSON.stringify(this.players))
+    }).mount('#app');
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW fail', err));
       });
-    },
-    loadCurrentState() {
-      if (!this.db) return;
-      const tx = this.db.transaction("currentState", "readonly");
-      const request = tx.objectStore("currentState").get('players');
-      request.onsuccess = () => {
-        if (request.result && request.result.players) {
-          this.players = request.result.players;
-        }
-      };
     }
-  },
-  mounted() {
-    this.initDB();
-  }
-}).mount('#app');
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW fail', err));
-  });
-}
-</script>
+  </script>
 </body>
+
 </html>
