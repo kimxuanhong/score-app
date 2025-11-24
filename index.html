@@ -417,6 +417,33 @@
       transform: scale(0.98);
       box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
     }
+
+    /* Action Menu */
+    .action-menu {
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      background: #2c2c2e;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      min-width: 120px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .action-menu-item {
+      padding: 12px 16px;
+      color: #ff453a;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.2s;
+      text-align: center;
+    }
+
+    .action-menu-item:active {
+      background: #3a3a3c;
+    }
   </style>
 </head>
 
@@ -466,7 +493,7 @@
     <template v-if="!showHistory">
       <div v-for="(player, index) in players" :key="index" class="player-card" :class="'card-' + (index % 8)">
         <div class="player-name">{{ player.name }}</div>
-        <button class="card-options" @click="editPlayer(index)">
+        <button class="card-options" @click="toggleActionMenu(index)">
           <!-- Three dots -->
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="2"></circle>
@@ -474,6 +501,11 @@
             <circle cx="19" cy="12" r="2"></circle>
           </svg>
         </button>
+
+        <!-- Action Menu -->
+        <div class="action-menu" v-if="showActionMenu === index">
+          <div class="action-menu-item" @click="confirmDeletePlayer(index)">Delete</div>
+        </div>
 
         <button class="control-btn minus" @click="changeScore(index, -1)">−</button>
         <div class="score-display" :class="{ changed: player.score !== player.originalScore }">{{ player.score }}</div>
@@ -572,6 +604,21 @@
       </div>
     </div>
 
+    <!-- Delete Player Confirmation Modal -->
+    <div class="modal-overlay" v-if="showDeleteModal">
+      <div class="modal-content">
+        <div class="modal-header">Delete Player</div>
+        <div class="modal-body">
+          <div style="color: #888; font-size: 14px;">Are you sure you want to delete <strong style="color: white;">{{
+              deletingPlayerName }}</strong>?</div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn" @click="showDeleteModal = false">Cancel</button>
+          <button class="modal-btn" @click="deletePlayer" style="color: #ff453a;">Delete</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -598,6 +645,10 @@
 
           showSettingsModal: false,
           showResetModal: false,
+          showDeleteModal: false,
+          showActionMenu: -1,
+          deletingPlayerIndex: -1,
+          deletingPlayerName: '',
           playerInput: ''
         }
       },
@@ -625,6 +676,24 @@
         addPlayer() {
           const newIndex = this.players.length + 1;
           this.players.push({ name: 'Player ' + newIndex, score: 0, originalScore: 0 });
+          this.saveCurrentState();
+        },
+        toggleActionMenu(index) {
+          this.showActionMenu = this.showActionMenu === index ? -1 : index;
+        },
+        confirmDeletePlayer(index) {
+          this.showActionMenu = -1;
+          if (this.players.length <= 1) {
+            alert('You must have at least one player!');
+            return;
+          }
+          this.deletingPlayerIndex = index;
+          this.deletingPlayerName = this.players[index].name;
+          this.showDeleteModal = true;
+        },
+        deletePlayer() {
+          this.players.splice(this.deletingPlayerIndex, 1);
+          this.showDeleteModal = false;
           this.saveCurrentState();
         },
         editPlayer(index) {
@@ -665,6 +734,16 @@
             }
 
             this.players = names.map(name => ({ name, score: 0, originalScore: 0 }));
+
+            // Clear history
+            if (this.db) {
+              const tx = this.db.transaction("history", "readwrite");
+              tx.objectStore("history").clear();
+              tx.oncomplete = () => {
+                this.history = [];
+              };
+            }
+
             this.showSettingsModal = false;
             this.saveCurrentState();
           }
@@ -680,10 +759,21 @@
             time: new Date().toLocaleString()
           });
 
+          // Reset scores
           this.players.forEach(p => {
             p.score = 0;
             p.originalScore = 0;
           });
+
+          // Clear history
+          if (this.db) {
+            const tx = this.db.transaction("history", "readwrite");
+            tx.objectStore("history").clear();
+            tx.oncomplete = () => {
+              this.history = [];
+            };
+          }
+
           this.saveCurrentState();
         },
 
