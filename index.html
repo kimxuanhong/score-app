@@ -350,6 +350,14 @@
       color: white;
     }
 
+    .history-table tfoot td {
+      background: #2c2c2e;
+      font-weight: 700;
+      color: #fff;
+      border-top: 2px solid #3a3a3c;
+      border-bottom: none;
+    }
+
     .history-table tr:last-child td {
       border-bottom: none;
     }
@@ -517,6 +525,12 @@
                   <td v-for="score in entry.scores" :key="score.name">{{ score.score }}</td>
                 </tr>
               </tbody>
+              <tfoot>
+                <tr>
+                  <td>Total</td>
+                  <td v-for="total in playerTotals" :key="total">{{ total }}</td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -604,6 +618,16 @@
       computed: {
         hasPendingChanges() {
           return this.players.some(p => p.score !== p.originalScore);
+        },
+        playerTotals() {
+          if (!this.history.length) return this.players.map(() => 0);
+
+          return this.players.map(player => {
+            return this.history.reduce((sum, entry) => {
+              const playerScore = entry.scores.find(s => s.name === player.name);
+              return sum + (playerScore ? playerScore.score : 0);
+            }, 0);
+          });
         }
       },
       methods: {
