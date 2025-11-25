@@ -429,75 +429,110 @@
       transform: scale(0.98);
       box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
     }
+
+    /* Transitions */
+    .slide-left-enter-active,
+    .slide-left-leave-active,
+    .slide-right-enter-active,
+    .slide-right-leave-active {
+      transition: all 0.3s ease-out;
+    }
+
+    .slide-left-enter-from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    .slide-left-leave-to {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .slide-right-enter-from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .slide-right-leave-to {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    .main-view {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
   </style>
 </head>
 
 <body>
 
   <div id="app">
-    <!-- Top Bar -->
-    <div class="header" v-if="!showHistory">
-      <div style="display: flex; gap: 5px;">
-        <button class="icon-btn" @click="openSettings">
-          <!-- Gear Icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path
-              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-            </path>
-          </svg>
-        </button>
-      </div>
-      <div class="header-right">
-        <button class="icon-btn" @click="resetScores">
-          <!-- Refresh Icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 4v6h-6"></path>
-            <path d="M1 20v-6h6"></path>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-          </svg>
-        </button>
-        <button class="icon-btn" @click="showHistory = true">
-          <!-- History Icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Main Game View -->
-    <template v-if="!showHistory">
-      <div v-for="(player, index) in players" :key="index" class="player-card" :class="'card-' + (index % 8)">
-        <div class="card-header">
-          <div class="player-name" @click="editPlayer(index)">{{ player.name }}</div>
-          <button class="options-btn" @click="editPlayer(index)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="5" cy="12" r="2"></circle>
-              <circle cx="12" cy="12" r="2"></circle>
-              <circle cx="19" cy="12" r="2"></circle>
-            </svg>
-          </button>
-        </div>
-
-        <div class="card-body">
-          <button class="control-btn" @click="changeScore(index, -1)">−</button>
-          <div class="score-display" :class="{ changed: player.score !== player.originalScore }">{{ player.score }}
+    <transition :name="transitionName" mode="out-in">
+      <!-- Main Game View -->
+      <div v-if="!showHistory" key="main" class="main-view">
+        <!-- Top Bar -->
+        <div class="header">
+          <div style="display: flex; gap: 5px;">
+            <button class="icon-btn" @click="openSettings">
+              <!-- Gear Icon -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+              </svg>
+            </button>
           </div>
-          <button class="control-btn" @click="changeScore(index, 1)">+</button>
+          <div class="header-right">
+            <button class="icon-btn" @click="resetScores">
+              <!-- Refresh Icon -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+            <button class="icon-btn" @click="showHistory = true">
+              <!-- History Icon -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div v-for="(player, index) in players" :key="index" class="player-card" :class="'card-' + (index % 8)">
+          <div class="card-header">
+            <div class="player-name" @click="editPlayer(index)">{{ player.name }}</div>
+            <button class="options-btn" @click="editPlayer(index)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="5" cy="12" r="2"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+                <circle cx="19" cy="12" r="2"></circle>
+              </svg>
+            </button>
+          </div>
+
+          <div class="card-body">
+            <button class="control-btn" @click="changeScore(index, -1)">−</button>
+            <div class="score-display" :class="{ changed: player.score !== player.originalScore }">{{ player.score }}
+            </div>
+            <button class="control-btn" @click="changeScore(index, 1)">+</button>
+          </div>
+        </div>
+
+        <!-- Confirm Button -->
+        <div class="confirm-footer" v-if="hasPendingChanges">
+          <button class="btn-confirm" @click="confirmAll">Confirm Changes</button>
         </div>
       </div>
 
-      <!-- Confirm Button -->
-      <div class="confirm-footer" v-if="hasPendingChanges">
-        <button class="btn-confirm" @click="confirmAll">Confirm Changes</button>
-      </div>
-    </template>
-
-    <!-- History View -->
-    <template v-else>
-      <div class="history-view">
+      <!-- History View -->
+      <div v-else class="history-view" key="history">
         <div class="history-header">
           <button class="back-btn" @click="showHistory = false">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -536,7 +571,7 @@
         </div>
         <div v-else style="text-align: center; margin-top: 60px; color: #636366; font-size: 16px;">No history yet</div>
       </div>
-    </template>
+    </transition>
 
     <!-- Modals -->
 
@@ -602,6 +637,7 @@
             { name: 'Shark', score: 0, originalScore: 0 },
           ],
           showHistory: false,
+          transitionName: 'slide-left',
           history: [],
           db: null,
 
@@ -613,6 +649,11 @@
           showSettingsModal: false,
           showResetModal: false,
           playerInput: ''
+        }
+      },
+      watch: {
+        showHistory(newVal) {
+          this.transitionName = newVal ? 'slide-left' : 'slide-right';
         }
       },
       computed: {
